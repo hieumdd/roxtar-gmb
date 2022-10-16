@@ -1,0 +1,52 @@
+name: Cloud Functions
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+  workflow_dispatch:
+
+concurrency: ${{ github.ref }}
+
+env:
+  FUNCTION_NAME: roxtar-gmb-${{ github.ref_name }}
+  GCP_SA: integration@roxtar-365414.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: tsc --project tsconfig.build.json
+
+      - run: |
+          cp package.json dist/package.json
+          cp package-lock.json dist/package-lock.json
+
+      - uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v0
+
+      - run: >-
+          gcloud functions deploy ${{ env.FUNCTION_NAME }}
+          --entry-point=main
+          --source=dist
+          --region=us-central1
+          --timeout=530
+          --memory=1024MB
+          --runtime=nodejs16
+          --trigger-http
+          --no-user-output-enabled
+          --service-account=${{ env.GCP_SA }}
+          --allow-unauthenticated
