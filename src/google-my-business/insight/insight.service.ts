@@ -49,7 +49,7 @@ export const getInsights = (
                 'dailyRange.start_date.month': start.month() + 1,
                 'dailyRange.start_date.day': start.date(),
                 'dailyRange.end_date.year': end.year(),
-                'dailyRange.end_date.month': end.get('month') + 1,
+                'dailyRange.end_date.month': end.month() + 1,
                 'dailyRange.end_date.day': end.date(),
             },
         })
@@ -60,14 +60,17 @@ export const getInsights = (
                 metric: dailyMetric,
                 date: dayjs()
                     .year(date.year)
-                    .month(date.month)
-                    .day(date.day)
+                    .month(date.month - 1)
+                    .date(date.day)
                     .format('YYYY-MM-DD'),
                 value,
             })),
         )
-        .catch((err) =>
-            axios.isAxiosError(err) && err.response?.status === 403
-                ? []
-                : Promise.reject(err),
-        );
+        .catch((err) => {
+            if (axios.isAxiosError(err) && err.response?.status === 403) {
+                console.log(JSON.stringify({ locationId, dailyMetric }));
+                return [];
+            }
+
+            return Promise.reject(err);
+        });
