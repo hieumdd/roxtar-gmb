@@ -34,7 +34,7 @@ export const load = (rows: Record<string, any>[], options: TLoadOptions) => {
             schema: { fields },
             sourceFormat: 'NEWLINE_DELIMITED_JSON',
             createDisposition: 'CREATE_IF_NEEDED',
-            writeDisposition: 'WRITE_TRUNCATE',
+            writeDisposition: 'WRITE_APPEND',
         });
 
     return pipeline(Readable.from(_rows), ndjson.stringify(), tableWriteStream);
