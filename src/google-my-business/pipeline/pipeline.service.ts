@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc'
+import utc from 'dayjs/plugin/utc';
 
 import { load } from '../../bigquery/bigquery.service';
 import { getAuthClient } from '../auth/auth.service';
 import { getLocations } from '../location/location.service';
 import { DailyMetric, getInsights } from '../insight/insight.service';
-import { locationSchema, insightSchema } from './pipeline.schema';
+import { getReviews } from '../review/review.service';
+import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
 
 dayjs.extend(utc);
 
@@ -21,6 +22,7 @@ const parseDateRange = ({ start, end }: TPipelineOptions) => [
 
 export const pipeline = async (options: TPipelineOptions) => {
     const accountId = '102502012296490759042';
+
     const [start, end] = parseDateRange(options);
 
     const client = await getAuthClient();
@@ -41,8 +43,19 @@ export const pipeline = async (options: TPipelineOptions) => {
         ),
     ).then((data) => data.flat());
 
+    const reviews = await Promise.all(
+        locations.map((location) =>
+            getReviews(client, { accountId, locationId: location.name }),
+        ),
+    ).then((locationReviews) => locationReviews.flat());
+
     return Promise.all([
         load(locations, { table: 'Location', schema: locationSchema }),
         load(insights, { table: 'Insight', schema: insightSchema }),
-    ]).then(() => ({ location: locations.length, insight: insights.length }));
+        load(reviews, { table: 'Review', schema: reviewSchema }),
+    ]).then(() => ({
+        location: locations.length,
+        insight: insights.length,
+        review: reviews.length,
+    }));
 };
