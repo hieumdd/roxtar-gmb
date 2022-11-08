@@ -10,17 +10,17 @@ import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
 
 dayjs.extend(utc);
 
-type TPipelineOptions = {
+type PipelineOptions = {
     start?: string;
     end?: string;
 };
 
-const parseDateRange = ({ start, end }: TPipelineOptions) => [
+const parseDateRange = ({ start, end }: PipelineOptions) => [
     start ? dayjs.utc(start) : dayjs.utc().subtract(1, 'year'),
     end ? dayjs.utc(end) : dayjs.utc(),
 ];
 
-export const pipeline = async (options: TPipelineOptions) => {
+export const pipeline = async (options: PipelineOptions) => {
     const accountId = '102502012296490759042';
 
     const [start, end] = parseDateRange(options);

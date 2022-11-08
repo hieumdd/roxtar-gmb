@@ -1,25 +1,25 @@
 import { AxiosInstance } from 'axios';
 
-type TGetLocationOptions = {
+type GetLocationsOptions = {
     accountId: string;
 };
 
-type TLocation = {
+type Location = {
     name: string;
     title: string;
 };
 
-type TLocationResponse = {
+type LocationsResponse = {
     nextPageToken?: string;
-    locations: TLocation[];
+    locations: Location[];
 };
 
 export const getLocations = (
     client: AxiosInstance,
-    { accountId }: TGetLocationOptions,
+    { accountId }: GetLocationsOptions,
 ) => {
-    const get = async (pageToken?: string): Promise<TLocation[]> => {
-        const { data } = await client.request<TLocationResponse>({
+    const get = async (pageToken?: string): Promise<Location[]> => {
+        const { data } = await client.request<LocationsResponse>({
             url: `https://mybusinessbusinessinformation.googleapis.com/v1/accounts/${accountId}/locations`,
             params: {
                 readMask: ['name', 'title'].join(','),

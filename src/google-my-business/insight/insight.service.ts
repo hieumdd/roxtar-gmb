@@ -16,14 +16,14 @@ export enum DailyMetric {
     BUSINESS_FOOD_ORDERS = 'BUSINESS_FOOD_ORDERS',
 }
 
-type TGetInsightsOptions = {
+type GetInsightsOptions = {
     locationId: string;
     dailyMetric: DailyMetric;
     start: Dayjs;
     end: Dayjs;
 };
 
-type TInsightsResponse = {
+type InsightsResponse = {
     timeSeries: {
         datedValues: {
             date: {
@@ -38,10 +38,10 @@ type TInsightsResponse = {
 
 export const getInsights = (
     client: AxiosInstance,
-    { locationId, dailyMetric, start, end }: TGetInsightsOptions,
+    { locationId, dailyMetric, start, end }: GetInsightsOptions,
 ) =>
     client
-        .request<TInsightsResponse>({
+        .request<InsightsResponse>({
             url: `https://businessprofileperformance.googleapis.com/v1/locations/${locationId}:getDailyMetricsTimeSeries`,
             params: {
                 dailyMetric,
