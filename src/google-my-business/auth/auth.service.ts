@@ -3,7 +3,7 @@ import axiosThrottle from 'axios-request-throttle';
 
 import { getSecret } from '../../secret-manager/secret-manager.service';
 
-type TToken = {
+type Token = {
     access_token: string;
 };
 
@@ -19,7 +19,7 @@ export const getToken = async () => {
     );
 
     return axios
-        .request<TToken>({
+        .request<Token>({
             method: 'POST',
             url: TOKEN_URL,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

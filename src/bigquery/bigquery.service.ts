@@ -5,12 +5,12 @@ import ndjson from 'ndjson';
 import { BigQuery } from '@google-cloud/bigquery';
 import dayjs from 'dayjs';
 
-type TAddBatchedAtOptions = {
+type AddBatchedAtOptions = {
     rows: Record<string, any>[];
     schema: Record<string, any>[];
 };
 
-type TLoadOptions = {
+type LoadOptions = {
     table: string;
     schema: Record<string, any>[];
 };
@@ -19,12 +19,12 @@ const client = new BigQuery();
 
 const DATASET = 'GoogleMyBusiness';
 
-const addBatchedAt = ({ rows, schema }: TAddBatchedAtOptions) => [
+const addBatchedAt = ({ rows, schema }: AddBatchedAtOptions) => [
     rows.map((row) => ({ ...row, _batched_at: dayjs().toISOString() })),
     [...schema, { name: '_batched_at', type: 'TIMESTAMP' }],
 ];
 
-export const load = (rows: Record<string, any>[], options: TLoadOptions) => {
+export const load = (rows: Record<string, any>[], options: LoadOptions) => {
     const [_rows, fields] = addBatchedAt({ rows, schema: options.schema });
 
     const tableWriteStream = client
